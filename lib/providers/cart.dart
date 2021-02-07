@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 class CartItem {
   final String id;
   final String title;
-  final int quality;
+  final int quantity;
   final double price;
 
   CartItem({
     @required this.id,
     @required this.title,
-    @required this.quality,
+    @required this.quantity,
     @required this.price,
   });
 }
@@ -25,6 +25,14 @@ class Cart with ChangeNotifier {
     return _items.length;
   }
 
+  double get totalAmount {
+    var total = 0.0;
+    _items.forEach((key, value) {
+      total += value.price * value.quantity;
+    });
+    return total;
+  }
+
   void addItem(
     String productId,
     String title,
@@ -38,7 +46,7 @@ class Cart with ChangeNotifier {
           id: oldValue.id,
           title: oldValue.title,
           price: oldValue.price,
-          quality: oldValue.quality + 1,
+          quantity: oldValue.quantity + 1,
         ),
       );
     } else {
@@ -49,10 +57,15 @@ class Cart with ChangeNotifier {
           id: DateTime.now().toString(),
           title: title,
           price: price,
-          quality: 1,
+          quantity: 1,
         ),
       );
     }
+    notifyListeners();
+  }
+
+  void removeItem(String productId) {
+    _items.remove(productId);
     notifyListeners();
   }
 }
