@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -42,24 +45,46 @@ class CartItem extends StatelessWidget {
       confirmDismiss: (direction) {
         return showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text('Are you sure ?'),
-            content: Text('Do you want to remove the item from the cart ?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop(false);
-                },
-                child: Text('No'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop(true);
-                },
-                child: Text('Yes'),
-              ),
-            ],
-          ),
+          builder: (ctx) => Platform.isIOS
+              ? CupertinoAlertDialog(
+                  title: Text('Are you sure ?'),
+                  content:
+                      Text('Do you want to remove the item from the cart ?'),
+                  actions: [
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      child: Text('No'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop(false);
+                      },
+                    ),
+                    CupertinoDialogAction(
+                      child: Text('Yes'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop(true);
+                      },
+                    ),
+                  ],
+                )
+              : AlertDialog(
+                  title: Text('Are you sure ?'),
+                  content:
+                      Text('Do you want to remove the item from the cart ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop(false);
+                      },
+                      child: Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop(true);
+                      },
+                      child: Text('Yes'),
+                    ),
+                  ],
+                ),
         );
       },
       onDismissed: (direction) {
