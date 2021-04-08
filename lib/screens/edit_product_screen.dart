@@ -36,8 +36,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void initState() {
-    // ignore: todo
-    // TODO: implement initState
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
