@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ShopApp/models/http_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './product.dart';
@@ -126,18 +127,53 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productIndex = _items.indexWhere((prod) => prod.id == id);
     if (productIndex >= 0) {
-      _items[productIndex] = newProduct;
-      notifyListeners();
+      try {
+        final url =
+            'https://flutter-shopapp-a18c8-default-rtdb.firebaseio.com/products/$id.json';
+        await http.patch(
+          url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price,
+            // 'isFavorite': newProduct.isFavorite,
+          }),
+        );
+        _items[productIndex] = newProduct;
+        notifyListeners();
+      } catch (error) {
+        print(error);
+        throw error;
+      }
     } else {
       print('...');
     }
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((prod) => prod.id == id);
+  Future<void> deleteProduct(String id) async {
+    final url =
+        'https://flutter-shopapp-a18c8-default-rtdb.firebaseio.com/products/$id.json';
+    final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
+    var existingProduct = _items[existingProductIndex];
+
+    // --- First remove product in local ---
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+
+    // --- When http failed, RollBack product into local ---
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      // Http Status error
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete Product.');
+    }
+    // Http Delete success. Remove cache.
+    existingProduct = null;
   }
 }

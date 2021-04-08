@@ -19,6 +19,8 @@ class UserProductItem extends StatelessWidget {
   );
 
   void _deleteProductItem(BuildContext ctx) {
+    final scaffold = Scaffold.of(ctx);
+
     showDialog(
       context: ctx,
       builder: (ctx) => Platform.isIOS
@@ -35,12 +37,24 @@ class UserProductItem extends StatelessWidget {
                 ),
                 CupertinoDialogAction(
                   child: Text('Yes'),
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.of(ctx).pop(true);
-                    Provider.of<Products>(
-                      ctx,
-                      listen: false,
-                    ).deleteProduct(id);
+
+                    try {
+                      await Provider.of<Products>(
+                        ctx,
+                        listen: false,
+                      ).deleteProduct(id);
+                    } catch (error) {
+                      scaffold.showSnackBar(
+                        SnackBar(
+                            content: Text(
+                          'Deleting failed !',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 20.0),
+                        )),
+                      );
+                    }
                   },
                 ),
               ],
