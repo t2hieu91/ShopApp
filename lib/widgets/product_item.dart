@@ -1,3 +1,4 @@
+import 'package:ShopApp/providers/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,10 @@ class ProductItem extends StatelessWidget {
       listen: false,
     );
     final cart = Provider.of<Cart>(
+      context,
+      listen: false,
+    );
+    final authData = Provider.of<Auth>(
       context,
       listen: false,
     );
@@ -46,7 +51,7 @@ class ProductItem extends StatelessWidget {
                 product.isFavorite ? Icons.favorite : Icons.favorite_border,
               ),
               onPressed: () {
-                product.toggleFavoriteStatus();
+                product.toggleFavoriteStatus(authData.token);
               },
               color: Theme.of(context).accentColor,
             ),
