@@ -33,6 +33,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       setState(() {
         _isLoading = false;
       });
+    }).catchError((error) {
+      print('initState: $error');
+      setState(() {
+        _isLoading = false;
+      });
     });
 
     super.initState();
