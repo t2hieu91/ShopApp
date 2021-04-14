@@ -42,8 +42,16 @@ class AppDrawer extends StatelessWidget {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Logout'),
+            leading: Icon(
+              Icons.exit_to_app,
+              color: Theme.of(context).accentColor,
+            ),
+            title: Text(
+              'Logout',
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+              ),
+            ),
             onTap: () {
               Navigator.of(context).pushReplacementNamed('/');
               Provider.of<Auth>(

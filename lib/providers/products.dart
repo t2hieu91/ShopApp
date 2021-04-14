@@ -128,8 +128,6 @@ class Products with ChangeNotifier {
         }),
       );
       // ...
-      print(json.decode(response.body));
-      // ...
       final newProduct = Product(
         id: json.decode(response.body)['name'],
         title: product.title,
