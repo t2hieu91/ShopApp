@@ -68,19 +68,28 @@ class Products with ChangeNotifier {
   // }
 
   final String authToken;
+  final String userID;
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userID, this._items);
 
-  Future<void> fetchAndSetProducts() async {
-    final url =
-        'https://flutter-shopapp-a18c8-default-rtdb.firebaseio.com/products.json?auth=$authToken';
+  Future<void> fetchAndSetProducts([bool filtterByUser = false]) async {
+    final filtterString =
+        filtterByUser ? 'orderBy="creatorID"&equalTo="$userID"' : '';
+    var url =
+        'https://flutter-shopapp-a18c8-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filtterString';
 
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
       if (extractedData == null) {
         return;
       }
+      url =
+          'https://flutter-shopapp-a18c8-default-rtdb.firebaseio.com/userFavorites/$userID.json?auth=$authToken';
+
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
 
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodID, prodData) {
@@ -91,7 +100,8 @@ class Products with ChangeNotifier {
             description: prodData['description'],
             price: prodData['price'],
             imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodID] ?? false,
           ),
         );
       });
@@ -114,7 +124,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite,
+          'creatorID': userID,
         }),
       );
       // ...
@@ -148,7 +158,6 @@ class Products with ChangeNotifier {
             'description': newProduct.description,
             'imageUrl': newProduct.imageUrl,
             'price': newProduct.price,
-            // 'isFavorite': newProduct.isFavorite,
           }),
         );
         _items[productIndex] = newProduct;

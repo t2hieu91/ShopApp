@@ -1,4 +1,5 @@
 import 'package:ShopApp/providers/auth.dart';
+import 'package:ShopApp/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
           create: null,
           update: (ctx, auth, prevProducts) => Products(
             auth.token,
+            auth.userID,
             prevProducts != null ? prevProducts.items : [],
           ),
         ),
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
           create: null,
           update: (ctx, auth, prevOrders) => Orders(
             auth.token,
+            auth.userID,
             prevOrders != null ? prevOrders.orders : [],
           ),
         ),
@@ -54,7 +57,16 @@ class MyApp extends StatelessWidget {
             fontFamily: 'Lato',
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),
